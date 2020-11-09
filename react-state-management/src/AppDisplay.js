@@ -58,9 +58,9 @@ const itemWithId = (id) =>
 
 const Item = ({ id }) => {
   const [item, setItem] = useRecoilState(itemWithId(id));
-  return {
+  return (
       ...
-  }
+  )
 };
 
 
