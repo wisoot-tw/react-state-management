@@ -5,6 +5,26 @@ const itemsList = [
   ...
 ];
 
+const Items = ({ items, increment }) => {
+  const [itemIds] = useState(itemsList.map((item) => item.id));
+  return (
+    {itemIds.map((id) => (
+      <Item key={id} item={items[id]} increment={increment} />
+    ))}
+  );
+};
+
+const Item = ({ item, increment }) => {
+  return (
+    ...
+  );
+};
+
+
+
+
+
+
 function reactionReducer(state = initialState, action) {
   switch (action.type) {
     ...
@@ -42,6 +62,15 @@ const Item = ({ id }) => {
       ...
   }
 };
+
+
+
+
+const Item = React.memo(({ item, increment }) => {
+  return (
+    ...
+  );
+});
 
 
 
