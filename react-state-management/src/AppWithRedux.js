@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import { configureStore, createSlice } from '@reduxjs/toolkit';
+import { createStore } from "redux";
 import { connect, Provider } from 'react-redux';
 
 const movieList = [
@@ -16,29 +16,59 @@ const movieList = [
   { id: 9, name: 'The Lord of the Rings: The Fellowship of the Ring', likes: 0 },
 ];
 
-const {
-  actions: { like, dislike },
-  reducer,
-} = createSlice({
-  name: 'movies',
-  initialState: movieList,
-  reducers: {
-    like: (state, action) => {
-      state[action.payload].likes += 1;
-    },
-    dislike: (state, action) => {
-      state[action.payload].likes -= 1;
-    },
-  },
-});
+const initialState = movieList;
 
-const store = configureStore({ reducer });
+// Action type
+export const LIKE = "LIKE";
+export const DISLIKE = "DISLIKE";
+
+// Action
+export function like(id) {
+    return {
+       type: LIKE,
+       payload: id
+    }
+ }
+
+ export function dislike(id) {
+    return {
+       type: DISLIKE,
+       payload: id
+    }
+ }
+
+function reactionReducer(state = initialState, action) {
+	switch (action.type) {
+		case LIKE:
+			return {
+        ...state,
+        [action.payload]: {
+          ...state[action.payload],
+          likes: state[action.payload].likes + 1
+        }
+      }
+		case DISLIKE:
+      return {
+        ...state,
+        [action.payload]: {
+          ...state[action.payload],
+          likes: state[action.payload].likes - 1
+        }
+      }
+		default:
+			return state
+	}
+}
+
+const store = createStore(reactionReducer);
 
 const mapStateMovie = (state, props) => ({ movie: state[props.id] });
-const mapStateNav = (state) => ({
-  topMovieName: state.reduce((max, current) => (current.likes > max.likes ? current : max), state[0]).name,
-  totalLikes: state.reduce((accumulator, movie) => accumulator + movie.likes, 0),
-});
+const mapStateNav = (state) => {
+  return {
+    topMovieName: Object.values(state).reduce((max, current) => (current.likes > max.likes ? current : max), state[0]).name,
+    totalLikes: Object.values(state).reduce((accumulator, movie) => accumulator + movie.likes, 0),
+  };
+};
 
 const mapDispatch = { like, dislike };
 
@@ -84,23 +114,26 @@ const Movies = () => {
 const Movie = connect(
   mapStateMovie,
   mapDispatch
-)(({ movie, like, dislike }) => (
-  <div className="movie-item">
-    <div>{movie.name}</div>
-    <div>{movie.likes}</div>
-    <div>
-      <button onClick={() => like(movie.id)}>
-        <span role="img" aria-label="like">
-          👍🏼
-        </span>
-      </button>
-      <button onClick={() => dislike(movie.id)}>
-        <span role="img" aria-label="dislike">
-          👎🏼
-        </span>
-      </button>
+)(({ movie, like, dislike }) => {
+  console.log('render', movie.id);
+  return (
+    <div className="movie-item">
+      <div>{movie.name}</div>
+      <div>{movie.likes}</div>
+      <div>
+        <button onClick={() => like(movie.id)}>
+          <span role="img" aria-label="like">
+            👍🏼
+          </span>
+        </button>
+        <button onClick={() => dislike(movie.id)}>
+          <span role="img" aria-label="dislike">
+            👎🏼
+          </span>
+        </button>
+      </div>
     </div>
-  </div>
-));
+  )
+});
 
 export default App;

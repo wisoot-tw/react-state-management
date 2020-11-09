@@ -60,6 +60,7 @@ const Movies = () => {
 };
 
 const Movie = ({ id }) => {
+  console.log('render', id);
   const [movie, setMovie] = useState(movieList[id]);
 
   const updateLikes = (value) => {

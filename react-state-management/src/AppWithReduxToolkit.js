@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
-import { atom, RecoilRoot, selector, useRecoilState, useRecoilValue } from 'recoil';
+import { configureStore, createSlice } from '@reduxjs/toolkit';
+import { connect, Provider } from 'react-redux';
 
 const movieList = [
   { id: 0, name: 'The Shawshank Redemption', likes: 0 },
@@ -15,48 +16,45 @@ const movieList = [
   { id: 9, name: 'The Lord of the Rings: The Fellowship of the Ring', likes: 0 },
 ];
 
-const movieWithId = (id) =>
-  atom({
-    key: `movie-${id}`,
-    default: movieList[id],
-  });
-
-const topMovieNameState = selector({
-  key: 'topMovieName',
-  get: ({ get }) => {
-    const movieIds = movieList.map((movie) => movie.id);
-    const movies = movieIds.map((id) => get(movieWithId(id)));
-    return movies.reduce((max, current) => (current.likes > max.likes ? current : max), movies[0]).name;
+const {
+  actions: { like, dislike },
+  reducer,
+} = createSlice({
+  name: 'movies',
+  initialState: movieList,
+  reducers: {
+    like: (state, action) => {
+      state[action.payload].likes += 1;
+    },
+    dislike: (state, action) => {
+      state[action.payload].likes -= 1;
+    },
   },
 });
 
-const totalLikesState = selector({
-  key: 'totalLikes',
-  get: ({ get }) => {
-    const movieIds = movieList.map((movie) => movie.id);
-    const movies = movieIds.map((id) => get(movieWithId(id)));
-    return movies.reduce((accumulator, movie) => accumulator + movie.likes, 0);
-  },
+const store = configureStore({ reducer });
+
+const mapStateMovie = (state, props) => ({ movie: state[props.id] });
+const mapStateNav = (state) => ({
+  topMovieName: state.reduce((max, current) => (current.likes > max.likes ? current : max), state[0]).name,
+  totalLikes: state.reduce((accumulator, movie) => accumulator + movie.likes, 0),
 });
+
+const mapDispatch = { like, dislike };
 
 const App = () => (
-  <RecoilRoot>
+  <Provider store={store}>
     <Nav />
     <Body />
-  </RecoilRoot>
+  </Provider>
 );
 
-const Nav = () => {
-  const topMovieName = useRecoilValue(topMovieNameState);
-  const totalLikes = useRecoilValue(totalLikesState);
-
-  return (
-    <div className="nav">
-      <TopMovie topMovieName={topMovieName} />
-      <TotalLikes totalLikes={totalLikes} />
-    </div>
-  );
-};
+const Nav = connect(mapStateNav)(({ topMovieName, totalLikes }) => (
+  <div className="nav">
+    <TopMovie topMovieName={topMovieName} />
+    <TotalLikes totalLikes={totalLikes} />
+  </div>
+));
 
 const TopMovie = ({ topMovieName }) => <div>{topMovieName}</div>;
 
@@ -83,36 +81,29 @@ const Movies = () => {
   );
 };
 
-const Movie = ({ id }) => {
-  const [movie, setMovie] = useRecoilState(movieWithId(id));
-
-  const updateLikes = (value) => {
-    setMovie((m) => ({ ...m, likes: m.likes + value }));
-  };
-
-  const like = () => updateLikes(1);
-  const dislike = () => updateLikes(-1);
-
+const Movie = connect(
+  mapStateMovie,
+  mapDispatch
+)(({ movie, like, dislike }) => {
   console.log('render', movie.id);
-
   return (
     <div className="movie-item">
       <div>{movie.name}</div>
       <div>{movie.likes}</div>
       <div>
-        <button onClick={() => like()}>
+        <button onClick={() => like(movie.id)}>
           <span role="img" aria-label="like">
             👍🏼
           </span>
         </button>
-        <button onClick={() => dislike()}>
+        <button onClick={() => dislike(movie.id)}>
           <span role="img" aria-label="dislike">
             👎🏼
           </span>
         </button>
       </div>
     </div>
-  );
-};
+  )
+});
 
 export default App;

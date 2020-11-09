@@ -87,7 +87,7 @@ const Movies = () => {
   );
 };
 const Movie = memo(({ movie, like, dislike }) => {
-  console.log('rendering', movie.id);
+  console.log('render', movie.id);
   return (
     <div className="movie-item">
       <div>{movie.name}</div>

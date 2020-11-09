@@ -79,23 +79,26 @@ const Movies = () => {
   );
 };
 
-const Movie = React.memo(({ movie, like, dislike }) => (
-  <div className="movie-item">
-    <div>{movie.name}</div>
-    <div>{movie.likes}</div>
-    <div>
-      <button onClick={() => like(movie.id)}>
-        <span role="img" aria-label="like">
-          👍🏼
-        </span>
-      </button>
-      <button onClick={() => dislike(movie.id)}>
-        <span role="img" aria-label="dislike">
-          👎🏼
-        </span>
-      </button>
+const Movie = ({ movie, like, dislike }) => {
+  console.log('render' + movie.id);
+  return (
+    <div className="movie-item">
+      <div>{movie.name}</div>
+      <div>{movie.likes}</div>
+      <div>
+        <button onClick={() => like(movie.id)}>
+          <span role="img" aria-label="like">
+            👍🏼
+          </span>
+        </button>
+        <button onClick={() => dislike(movie.id)}>
+          <span role="img" aria-label="dislike">
+            👎🏼
+          </span>
+        </button>
+      </div>
     </div>
-  </div>
-));
+  )
+};
 
 export default App;
