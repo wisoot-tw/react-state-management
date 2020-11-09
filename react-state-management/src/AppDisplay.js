@@ -1,3 +1,5 @@
+
+
 const itemsList = [
   { id: 0, name: 'Example name', count: 0 },
   ...
@@ -11,7 +13,7 @@ function reactionReducer(state = initialState, action) {
 
 const mapStateItem = (state, props) => ({ item: state[props.id] });
 
-const Movie = connect(
+const Item = connect(
     mapStateItem,
     mapDispatch
   )(({ item, increment }) => {
@@ -28,15 +30,18 @@ const Movie = connect(
 
 
 
-const movieWithId = (id) =>
+const itemWithId = (id) =>
   atom({
     key: `item-${id}`,
     default: itemsList[id],
   });
 
-const Movie = ({ id }) => {
-  const [movie, setMovie] = useRecoilState(movieWithId(id));
+const Item = ({ id }) => {
+  const [item, setItem] = useRecoilState(itemWithId(id));
   return {
       ...
   }
 };
+
+
+
